@@ -130,5 +130,127 @@ arr1
 func biggerNumberFirst(a:Int,b:Int)->Bool{
     return a>b
 }
-arr1.sort(by: biggerNumberFirst) 
+arr1.sort(by: biggerNumberFirst)
 arr1
+
+//函数式编程
+func changeScore1(scores:inout [Int]) {
+    for (index,score) in scores.enumerated() {
+        scores[index] = Int(sqrt(Double(score))*10)
+    }
+}
+
+func changeScore2(scores:inout [Int]){
+    for (index,score) in scores.enumerated() {
+        scores[index] = Int(Double(score)/150.0*100.0)
+    }
+}
+
+var scores1 = [36,61,78,89,99]
+changeScore1(scores: &scores1)
+
+var scores2 = [88,101,124,137,150]
+changeScore2(scores: &scores2)
+
+
+//改进
+func changeScore3(score : Int) -> Int{
+    return Int(sqrt(Double(score))*10)
+}
+func changeScore4(score : Int) -> Int{
+    return Int(Double(score)/150.0*100.0)
+}
+
+func changeScores(scores:inout [Int],changeScore : (Int)->Int){
+    for (index,score) in scores.enumerated() {
+        scores[index] = changeScore(score)
+    }
+}
+
+var scores3 = [36,61,78,89,99]
+changeScores(scores: &scores3,changeScore: changeScore3)
+
+var scores4 = [88,101,124,137,150]
+changeScores(scores: &scores4,changeScore: changeScore4)
+
+//更简单 高阶函数
+//-------map
+var scores5 = [36,61,78,89,99]
+scores5.map(changeScore3)
+
+scores5
+func isPassOrFail(score : Int) ->String{
+    return score < 60 ? "Fail" : "Pass"
+}
+scores5.map(isPassOrFail)
+// $0代表数组中的每一个元素
+scores5.map { (score) -> String in
+    return score<60 ? "Fail" : "Pass"
+}
+scores5.map{
+    return $0<60 ? "Fail" : "Pass"
+}
+
+//-------filter
+scores5
+func fail(score : Int) ->Bool{
+    return score < 60
+}
+scores5.filter(fail)
+scores5.filter { (score) -> Bool in
+    return score < 60
+}
+//$0表示数组中的每一个元素
+scores5.filter{
+    return $0 < 60   //返回为真的元素
+}
+
+//-------reduce
+func add1(num1 : Int,num2 :Int) -> Int{
+    return num1 + num2
+}
+scores5.reduce(0,add1)
+scores5.reduce(0, +)
+scores5.reduce(0,{ (score1,score2) -> Int in
+    return  score1 + score2
+})
+
+
+let stringArray = ["Objective-C", "Swift", "HTML", "CSS", "JavaScript"]
+
+func appendString(string1: String, string2: String) -> String {
+    return string1 == "" ? string2 : string1 + "、" + string2
+}
+// reduce方法中的第一个参数是初始值
+stringArray.reduce("", appendString)
+stringArray.reduce("", {(string1, string2) -> String in
+    return string1 == "" ? string2 : string1 + "、" + string2
+})
+// $0表示计算后的结果, $1表示数组中的每一个元素
+stringArray.reduce("", {
+    return $0 == "" ? $1 : $0 + "、" + $1
+})
+
+
+
+//返回函数类型  和 函数嵌套
+func tier1MailFeeByWeight(weight:Int) -> Int{
+    return 1*weight
+}
+
+func tier2MailFeeByWeight(weight:Int) -> Int{
+    return 3*weight
+}
+
+func feeByUnitPrice(price:Int,weight:Int)->Int{
+    func chooseMailFeeCalculationByWeight(weight:Int)-> (Int)->Int{
+        return weight <= 10 ? tier1MailFeeByWeight : tier2MailFeeByWeight
+    }
+    
+    let mailFeeByWeight = chooseMailFeeCalculationByWeight(weight: weight)
+    return mailFeeByWeight(weight) + price*weight
+}
+
+feeByUnitPrice(price: 5, weight: 20)
+feeByUnitPrice(price: 5, weight: 5)
+
